@@ -5,6 +5,11 @@ class Card:
 		self.suit = suit
 		self.value = value
 
+	# returns ace Corrected value(ace changed to 14 i.e highest, rest kept the same), useful when comparing card value
+	@property
+	def valueAceCorrected(self):
+		return 14 if self.value==1 else self.value 
+
 	def show(self):
 		print '{} of {}'.format(self.value, self.suit)
 
@@ -43,11 +48,12 @@ class HandInfo:
 	def isPureSequence(hand):
 		return HandInfo.isFlush(hand) and HandInfo.isSequence(hand)
 
+	# ace-king-queen not treated as a sequence !!! is a easy fix but not yet done
 	@staticmethod
 	def isSequence(cards):
 		values = sorted( [card.value for card in cards] )
 		possibleSequence = range(min(values), min(values)+len(values))
-		return values == possibleSequence
+		return values == possibleSequence 
 
 	@staticmethod
 	def isFlush(hand):
@@ -58,15 +64,16 @@ class HandInfo:
 	def hasPair(hand):
 		return len(set([card.value for card in hand])) == 2
 
+	# returns ace Corrected value(ace changed to 14 or highest), useful when comparing pair
 	@staticmethod
 	def getPairValue(hand):
-		handCardValues = [card.value for card in hand]
-		if (HandInfo.hasPair(hand)):
-			return max(set(handCardValues),key=handCardValues.count)
+		assert( HandInfo.hasPair(hand) )
+		handCardValues = [card.valueAceCorrected for card in hand] 
+		return max( set( handCardValues ), key=handCardValues.count )
 		return 0
 
 	@staticmethod
-	def getRank(hand): # returns int rank based on whether it's flush, sequence, trial, etc
+	def getRank(hand): # returns tuple of int rank based on whether it's flush, sequence, trial, etc and the rank name as string
 		if HandInfo.isTrial(hand):
 			return 5, 'Trial'
 		elif HandInfo.isPureSequence(hand):
@@ -84,9 +91,17 @@ class HandInfo:
 class HandCompare:
 	@staticmethod
 	def valuesCompare(hand1, hand2):
-		hand1_values = list( reversed( sorted( [card.value for card in hand1] ) ) )
-		hand2_values = list( reversed( sorted( [card.value for card in hand2] ) ) )
-		if  hand1_values > hand2_values:
+		# initalizing lists containing values of hand1 and hand2 cards
+		hand1_values = [card.value for card in hand1]
+		hand2_values = [card.value for card in hand2]
+		# replacing Ace or 1 with 14 because Ace is actually the highest value
+		hand1_values = list( map( lambda x: 14 if x==1 else x, hand1_values) )
+		hand2_values = list( map( lambda x: 14 if x==1 else x, hand2_values) )
+		#arranging the handvalues in descending order
+		hand1_values.sort(reverse=True)
+		hand2_values.sort(reverse=True)
+		# using list comparison to compare cards arranged in descending order
+		if  hand1_values > hand2_values: 
 			return 1
 		elif hand1_values < hand2_values:
 			return -1
@@ -123,16 +138,19 @@ class HandCompare:
 				return HandCompare.valuesCompare(hand1, hand2)
 
 
-def mainMethod():
+def gameRound():
 	deck = Deck()
 	deck.shuffle()
 
-	handOfPlayer1 = []
-	handOfPlayer2 = []
+	handOfPlayer1 = [Card(1,'Spade'),Card(4,'Diamond'),Card(3,'Diamond')]
+	handOfPlayer2 = [Card(13,'Spade'),Card(3,'Diamond'),Card(12,'Diamond')]
 
+	'''
+	# distributing cards to player
 	for i in range(3):
 		handOfPlayer1.append(deck.drawCard())
 		handOfPlayer2.append(deck.drawCard())
+	'''
 
 	print "Player1's hand is:"
 	for card in handOfPlayer1:
@@ -155,7 +173,7 @@ def mainMethod():
 
 if __name__ == '__main__':
 	while True:
-		mainMethod()
+		gameRound()
 		raw_input("Press Enter to continue!")
 
 
