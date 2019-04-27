@@ -1,6 +1,8 @@
 import random 
 
 class Card:
+	cardRanks = tuple(['Ace'] + range(2,11) + ['Jack', 'Queen', 'King']) #used when printing the card to user
+
 	def __init__(self, value, suit):
 		self.suit = suit
 		self.value = value
@@ -10,8 +12,13 @@ class Card:
 	def valueAceCorrected(self):
 		return 14 if self.value==1 else self.value 
 
+	# returns value for printing ('Ace' for 1 etc)
+	@property
+	def valueForShow(self):
+		return Card.cardRanks[self.value - 1]
+
 	def show(self):
-		print '{} of {}'.format(self.value, self.suit)
+		print '{} of {}'.format(self.valueForShow, self.suit)
 
 
 class Deck:
@@ -48,12 +55,11 @@ class HandInfo:
 	def isPureSequence(hand):
 		return HandInfo.isFlush(hand) and HandInfo.isSequence(hand)
 
-	# ace-king-queen not treated as a sequence !!! is a easy fix but not yet done
 	@staticmethod
 	def isSequence(cards):
 		values = sorted( [card.value for card in cards] )
 		possibleSequence = range(min(values), min(values)+len(values))
-		return values == possibleSequence 
+		return values == possibleSequence or values == [1, 12, 13] # normal sequence or ace-king-queen
 
 	@staticmethod
 	def isFlush(hand):
@@ -85,7 +91,7 @@ class HandInfo:
 		elif HandInfo.hasPair(hand):
 			return 1, 'Pair'
 		else:
-			return 0, 'None'
+			return 0, 'High Card'
 
 
 class HandCompare:
@@ -121,29 +127,27 @@ class HandCompare:
 
 	@staticmethod
 	def compare(hand1, hand2):
-		rankP1 = HandInfo.getRank(hand1)
-		print 'Hand1 is', rankP1[1]
-		rankP2 = HandInfo.getRank(hand2)
-		print 'Hand2 is', rankP2[1]
-		print
+		rankHand1 = HandInfo.getRank(hand1)
+		print 'Hand1 is', rankHand1[1]
+		rankHand2 = HandInfo.getRank(hand2)
+		print 'Hand2 is', rankHand2[1],'\n'
 
-		if rankP1[0] > rankP2[0]:
+		if rankHand1[0] > rankHand2[0]:
 			return 1
-		elif rankP1[0] < rankP2[0]:
+		elif rankHand1[0] < rankHand2[0]:
 			return -1
 		else: # if rank is equal
-			if rankP1[1] == "Pair":
+			if rankHand1[1] == "Pair":
 				return HandCompare.pairCompare(hand1, hand2)
 			else:
 				return HandCompare.valuesCompare(hand1, hand2)
-
 
 def gameRound():
 	deck = Deck()
 	deck.shuffle()
 
-	handOfPlayer1 = [Card(1,'Spade'),Card(4,'Diamond'),Card(3,'Diamond')]
-	handOfPlayer2 = [Card(13,'Spade'),Card(3,'Diamond'),Card(12,'Diamond')]
+	handOfPlayer1 = [Card(11,'Spade'),Card(12,'Diamond'),Card(13,'Diamond')]
+	handOfPlayer2 = [Card(13,'Spade'),Card(1,'Diamond'),Card(12,'Diamond')]
 
 	'''
 	# distributing cards to player
