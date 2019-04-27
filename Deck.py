@@ -60,24 +60,25 @@ class HandInfo:
 
 	@staticmethod
 	def getPairValue(hand):
+		handCardValues = [card.value for card in hand]
 		if (HandInfo.hasPair(hand)):
-			return max(set(hand),key = hand.count)
+			return max(set(handCardValues),key=handCardValues.count)
 		return 0
 
 	@staticmethod
 	def getRank(hand): # returns int rank based on whether it's flush, sequence, trial, etc
 		if HandInfo.isTrial(hand):
-			return 5,'Trial'
+			return 5, 'Trial'
 		elif HandInfo.isPureSequence(hand):
-			return 4,'PureSequence'
+			return 4, 'PureSequence'
 		elif HandInfo.isSequence(hand):
-			return 3,'Sequence'
+			return 3, 'Sequence'
 		elif HandInfo.isFlush(hand):
-			return 2,'Flush'
+			return 2, 'Flush'
 		elif HandInfo.hasPair(hand):
-			return 1,'Pair'
+			return 1, 'Pair'
 		else:
-			return 0,'None'
+			return 0, 'None'
 
 
 class HandCompare:
@@ -94,9 +95,11 @@ class HandCompare:
 
 	@staticmethod
 	def pairCompare(hand1, hand2):
-		if HandInfo.getPairValue(hand1) > HandInfo.getPairValue(hand2):
+		pair1 = HandInfo.getPairValue(hand1)
+		pair2 = HandInfo.getPairValue(hand2)
+		if pair1 > pair2:
 			return 1
-		elif HandInfo.getPairValue(hand1) > HandInfo.getPairValue(hand2):
+		elif pair1 < pair2:
 			return -1
 		else:
 			return HandCompare.valuesCompare(hand1, hand2)
@@ -120,26 +123,26 @@ class HandCompare:
 				return HandCompare.valuesCompare(hand1, hand2)
 
 
-
-if __name__ == '__main__':
+def mainMethod():
 	deck = Deck()
 	deck.shuffle()
 
 	handOfPlayer1 = []
 	handOfPlayer2 = []
+
 	for i in range(3):
-		handOfPlayer1.append( deck.drawCard() )
-		handOfPlayer2.append( deck.drawCard() )
+		handOfPlayer1.append(deck.drawCard())
+		handOfPlayer2.append(deck.drawCard())
 
 	print "Player1's hand is:"
 	for card in handOfPlayer1:
 		card.show()
-	print 
-	
+	print
+
 	print "Player2's hand is:"
 	for card in handOfPlayer2:
 		card.show()
-	print 
+	print
 
 	result = HandCompare.compare(handOfPlayer1, handOfPlayer2)
 	if result > 0:
@@ -148,3 +151,11 @@ if __name__ == '__main__':
 		print "Player2 Won!"
 	else:
 		print "It's a draw!"
+
+
+if __name__ == '__main__':
+	while True:
+		mainMethod()
+		raw_input("Press Enter to continue!")
+
+
