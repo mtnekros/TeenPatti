@@ -1,4 +1,4 @@
-import random 
+import random ,copy
 
 class Card:
 	cardRanks = tuple(['Ace'] + range(2,11) + ['Jack', 'Queen', 'King']) #used when printing the card to user
@@ -83,7 +83,7 @@ class HandInfo:
 		if HandInfo.isTrial(hand):
 			return 5, 'Trial'
 		elif HandInfo.isPureSequence(hand):
-			return 4, 'PureSequence'
+			return 4, 'Pure Sequence'
 		elif HandInfo.isSequence(hand):
 			return 3, 'Sequence'
 		elif HandInfo.isFlush(hand):
@@ -126,11 +126,9 @@ class HandCompare:
 			return HandCompare.valuesCompare(hand1, hand2)
 
 	@staticmethod
-	def compare(hand1, hand2):
+	def compareTwoHands(hand1, hand2):
 		rankHand1 = HandInfo.getRank(hand1)
-		print 'Hand1 is', rankHand1[1]
 		rankHand2 = HandInfo.getRank(hand2)
-		print 'Hand2 is', rankHand2[1],'\n'
 
 		if rankHand1[0] > rankHand2[0]:
 			return 1
@@ -142,42 +140,47 @@ class HandCompare:
 			else:
 				return HandCompare.valuesCompare(hand1, hand2)
 
+	# to compare a list of hands
+	@staticmethod
+	def compare(hands):
+		handCopy = hands[:]
+		for i in range(len(handCopy) - 1):
+			if HandCompare.compareTwoHands(handCopy[i], handCopy[i+1]) == 1:
+				handCopy[i], handCopy[i+1] = handCopy[i+1],handCopy[i]
+		return handCopy[-1]
+		
+
 def gameRound():
 	deck = Deck()
 	deck.shuffle()
 
-	handOfPlayer1 = [Card(11,'Spade'),Card(12,'Diamond'),Card(13,'Diamond')]
-	handOfPlayer2 = [Card(13,'Spade'),Card(1,'Diamond'),Card(12,'Diamond')]
+	hands =[]
+	# adding 5 player or hands of player in hand
+	for i in range(5):
+		hands.append([])
 
-	'''
 	# distributing cards to player
 	for i in range(3):
-		handOfPlayer1.append(deck.drawCard())
-		handOfPlayer2.append(deck.drawCard())
-	'''
+		for hand in hands:
+			hand.append(deck.drawCard())
 
-	print "Player1's hand is:"
-	for card in handOfPlayer1:
-		card.show()
+	for i,hand in enumerate(hands):
+		print "Player{}'s hand is:".format(i+1)
+		for card in hand:
+			card.show()
+		print
+
+	for i,hand in enumerate(hands):
+		print 'Player{} has a {}'.format(i+1, HandInfo.getRank(hand)[1])
 	print
 
-	print "Player2's hand is:"
-	for card in handOfPlayer2:
-		card.show()
-	print
-
-	result = HandCompare.compare(handOfPlayer1, handOfPlayer2)
-	if result > 0:
-		print "Player1 Won!"
-	elif result < 0:
-		print "Player2 Won!"
-	else:
-		print "It's a draw!"
-
+	winningHand = HandCompare.compare(hands)
+	iWinningPlayer = hands.index(winningHand)
+	print "Player{} wins!!!".format(iWinningPlayer+1)
 
 if __name__ == '__main__':
 	while True:
 		gameRound()
-		raw_input("Press Enter to continue!")
+		raw_input("Press Enter to continue!\n")
 
 
